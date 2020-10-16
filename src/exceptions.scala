@@ -10,9 +10,9 @@ import java.io.{ FileNotFoundException, IOException }
  *
  * スライドで説明されたさまざまな状況下をプログラムで再現しています。
  * 個々の場合ごとに try { ... } catch { ... } を書くのが面倒だったので、
- * 例外処理は test 関数にまかせている。個別のケースは関数定義し、
+ * 例外処理は test 関数にまかせています。個別のケースは関数定義し、
  * その関数を test 関数の引数に渡すことで実現しています。
- * はい、そうなんです、関数の引数に関数を渡すことができるんです。（高階関数といいます。次回やります。）
+ * はい、そうなんです、関数の引数に関数を渡すことができるんです。（高階関数といいます。知ってますよね？）
  *
  * test のなかの h という関数は単に g を呼びます。
  * そして g は f を呼びます。
@@ -26,6 +26,10 @@ import java.io.{ FileNotFoundException, IOException }
 
 object ExceptionsLab extends App {
 
+  /** 例外を発生させるかもしれない関数 f を呼び出すためのテスト
+   *  fから発生した例外を try ... catch で捉えています。
+   *  発生した例外について、例外が発生した箇所までの関数の呼出順序（スタックトレース）を表示します。
+   **/
   def test(f:() => Unit): Unit = {
     def g(): Unit = { f() }
     def h(): Unit = { g() }
@@ -43,40 +47,40 @@ object ExceptionsLab extends App {
   }
 
   // 困った状況1
-  def zeroで除算() = { 1 / 0; () }
+  def zeroで除算(): Unit = { 1 / 0; () }
 
   test(zeroで除算)
 
   // 困った状況2
-  def parse壱() = { Integer.parseInt("壱"); () }
+  def parse壱(): Unit = { Integer.parseInt("壱"); () }
 
-  test(() => parse壱())
+  test(parse壱)
 
   // 困った状況3
-  def source親の親() = { Source.fromFile("/../file.txt"); () }
-  def source存在しないファイル() = { Source.fromFile("f" * 255); () }
-  def source長いファイル名() = { Source.fromFile("f" * 256); () }
+  def source親の親():           Unit = { Source.fromFile("/../file.txt"); () }
+  def source存在しないファイル(): Unit = { Source.fromFile("f" * 255); () }
+  def source長すぎるファイル名(): Unit = { Source.fromFile("f" * 256); () }
 
-  test(() => source親の親())
-  test(() => source存在しないファイル())
-  test(() => source長いファイル名())
+  test(source親の親)
+  test(source存在しないファイル)
+  test(source長すぎるファイル名)
 
   // 困った状況4
-  def 空リストに先頭の要素はない() = {
+  def 空リストに先頭の要素はない(): Unit = {
     (Nil: List[String]) match { case x :: _ => x }; ()
   }
-  def 空リストに残りのリストはない() = {
+  def 空リストに残りのリストはない(): Unit = {
     (Nil: List[String]) match { case _ :: l => l }; ()
   }
-  def ファイルが存在する場合はその先頭から5行を表示() = {
+  def ファイルが存在する場合はその先頭から5行を表示(): Unit = {
     println(Source.fromFile("exceptions.scala").getLines().take(5).mkString("\n"))
   }
-  def ファイル中のファイル() = { Source.fromFile("exceptions.scala/ファイルのなかにファイルがあるわけない"); () }
+  def ファイル中のファイル(): Unit = { Source.fromFile("exceptions.scala/ファイルのなかにファイルがあるわけない"); () }
 
-  test(() => 空リストに先頭の要素はない())
-  test(() => 空リストに残りのリストはない())
-  test(() => ファイルが存在する場合はその先頭から5行を表示())
-  test(() => ファイル中のファイル())
+  test(空リストに先頭の要素はない)
+  test(空リストに残りのリストはない)
+  test(ファイルが存在する場合はその先頭から5行を表示)
+  test(ファイル中のファイル)
 
   // 困った状況5
   def zip[S, T](l1: List[S], l2: List[T]): List[(S, T)] = {
@@ -86,11 +90,11 @@ object ExceptionsLab extends App {
     }
   }
 
-  def 異なる長さのリストをzipしてはいけない() = {
+  def 異なる長さのリストをzipしてはいけない(): Unit = {
     zip(List(1, 2), List("A", "B", "C")); ()
   }
 
-  test(() => 異なる長さのリストをzipしてはいけない())
+  test(異なる長さのリストをzipしてはいけない)
 
   // 困った状況6
   val 学校の仲間たち = List("のび太", "ジャイアン", "スネ夫")
@@ -105,12 +109,12 @@ object ExceptionsLab extends App {
     find_i(学校の仲間たち, 0)
   }
 
-  def しずかちゃんはもう卒業しちゃったよ() = {
+  def しずかちゃんはもう卒業しちゃったよ(): Unit = {
     println(find("のび太"))
     println(find("しずか"))
   }
 
-  test(() => しずかちゃんはもう卒業しちゃったよ())
+  test(しずかちゃんはもう卒業しちゃったよ)
 
 
   // 困った状況7 - 計算資源を食い潰す例
@@ -127,5 +131,5 @@ object ExceptionsLab extends App {
    */
 
   test(() => { 無限再帰地獄(); () })
-  // test(() => メモリーモンスター())
+  // test(メモリーモンスター)
 }

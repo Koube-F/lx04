@@ -10,7 +10,7 @@ lazy val common_project = Seq(
 lazy val scala_project = common_project ++ Seq(
   scalaVersion := "2.13.3",   // コンパイルに使う scalac のバージョン
   scalacOptions := Seq("-feature", "-unchecked", "-deprecation"),
-  scalaSource in Compile := baseDirectory.value / "src",
+  scalaSource in Compile := baseDirectory.value,
   )
 
-lazy val root = (project in file(".")).settings(scala_project)
+lazy val root = (project in file("src")).settings(scala_project)
